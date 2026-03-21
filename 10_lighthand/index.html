@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand - Cyber Dot-Matrix Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --y2k-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.1); --pink: #FFB6C1; }
+        body { margin: 0; background: #000; color: white; font-family: 'Courier New', monospace; overflow: hidden; }
+        .mirror-container { position: relative; width: 100vw; height: 100vh; }
+        video { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #startAudio {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: linear-gradient(45deg, var(--y2k-blue), var(--pink)); 
+            border: none; padding: 18px 36px; color: white; font-weight: bold;
+            cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(0,242,255,0.4);
+        }
+
+        .control-panel {
+            position: fixed; top: 15px; right: 15px; width: 180px; height: 90vh; overflow-y: auto;
+            background: var(--glass); backdrop-filter: blur(15px);
+            padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.15);
+            display: flex; flex-direction: column; gap: 12px; z-index: 100;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .control-group label { font-size: 10px; color: var(--y2k-blue); font-weight: bold; text-transform: uppercase; }
+        input[type="range"], input[type="color"] { width: 100%; accent-color: var(--y2k-blue); cursor: pointer; }
+
+        /* 开关样式 */
+        .switch-group { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--y2k-blue); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
+        .mode-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .mode-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc; font-size: 10px; padding: 6px; cursor: pointer; border-radius: 4px;
+        }
+        .mode-btn.active { background: var(--y2k-blue); color: #000; font-weight: bold; }
+
+        .custom-confirm-btn {
+            margin-top: 5px; width: 100%; padding: 8px; border-radius: 6px;
+            font-size: 11px; border: 1px solid var(--pink);
+            background: #222; color: #555; cursor: not-allowed; pointer-events: none;
+        }
+        .custom-confirm-btn.active { background: #333; color: white; cursor: pointer; pointer-events: auto; }
+    </style>
+</head>
+<body>
+    <button id="startAudio">开启数字骨骼 ✧</button>
+    <div class="mirror-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-group">
+            <label>和弦模式</label>
+            <div class="mode-buttons">
+                <button class="mode-btn active" onclick="setMode('dream')">Dream</button>
+                <button class="mode-btn" onclick="setMode('magic')">Magic</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="switch-group">
+                <label>纯黑背景模式</label>
+                <label class="switch">
+                    <input type="checkbox" id="darkBackground">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>手部粒子强度</label>
+            <input type="range" id="handIntensity" min="0" max="1.0" step="0.1" value="0.8">
+        </div>
+
+        <div class="control-group">
+            <label>上传蝴蝶 PNG</label>
+            <input type="file" id="imageUpload" accept="image/png">
+            <button id="confirmSprite" class="custom-confirm-btn">Confirm 替换</button>
+        </div>
+
+        <div class="control-group">
+            <label>轨迹抖动强度</label>
+            <input type="range" id="jitterIntensity" min="0" max="15" step="0.5" value="2">
+        </div>
+        
+        <div class="control-group">
+            <label>音调高度</label>
+            <input type="range" id="pluckPitch" min="0.5" max="4.0" step="0.1" value="2.0">
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
