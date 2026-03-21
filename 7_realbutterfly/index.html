@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand - Ultimate Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --y2k-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.1); --pink: #FFB6C1; }
+        body { margin: 0; background: #000; color: white; font-family: 'Courier New', monospace; overflow: hidden; }
+        .mirror-container { position: relative; width: 100vw; height: 100vh; }
+        /* 视频隐藏，通过 Canvas 镜像绘制 */
+        video { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #startAudio {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: linear-gradient(45deg, var(--y2k-blue), var(--pink)); 
+            border: none; padding: 18px 36px; color: white; font-weight: bold;
+            cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(0,242,255,0.4);
+        }
+
+        .control-panel {
+            position: fixed; top: 15px; right: 15px; width: 170px;
+            background: var(--glass); backdrop-filter: blur(15px);
+            padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.15);
+            display: flex; flex-direction: column; gap: 12px; z-index: 100;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 4px; }
+        .control-group label { font-size: 10px; color: var(--y2k-blue); font-weight: bold; }
+        input[type="range"] { width: 100%; accent-color: var(--y2k-blue); cursor: pointer; }
+
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .mode-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc; font-size: 10px; padding: 6px; cursor: pointer; border-radius: 4px;
+        }
+        .mode-btn.active { background: var(--y2k-blue); color: #000; border-color: var(--y2k-blue); }
+
+        .custom-confirm-btn {
+            margin-top: 5px; width: 100%; padding: 8px; border-radius: 6px;
+            font-size: 11px; border: 1px solid var(--pink);
+            background: #222; color: #555; cursor: not-allowed;
+            transition: all 0.2s ease; pointer-events: none;
+        }
+        .custom-confirm-btn.active { background: #333; color: white; cursor: pointer; pointer-events: auto; }
+        .custom-confirm-btn.active:hover { background: #FFD1DC; color: #000; }
+        .custom-confirm-btn.active:active { background: var(--pink); transform: scale(0.96); }
+    </style>
+</head>
+<body>
+    <button id="startAudio">进入魔法领域 ✧</button>
+    <div class="mirror-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-group">
+            <label>和弦模式</label>
+            <div class="mode-grid">
+                <button class="mode-btn active" onclick="setMode('dream')">Dream</button>
+                <button class="mode-btn" onclick="setMode('galaxy')">Galaxy</button>
+                <button class="mode-btn" onclick="setMode('arctic')">Arctic</button>
+                <button class="mode-btn" onclick="setMode('magic')">Magic</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Jitter (电子抖动)</label>
+            <input type="range" id="jitterIntensity" min="0" max="15" step="0.5" value="2">
+        </div>
+        <div class="control-group">
+            <label>蝴蝶透明度</label>
+            <input type="range" id="bfOpacity" min="0.1" max="1.0" step="0.05" value="0.8">
+        </div>
+        <div class="control-group">
+            <label>字符轨迹长度</label>
+            <input type="range" id="persistence" min="1000" max="6000" step="500" value="3000">
+        </div>
+        <div class="control-group">
+            <label>上传蝴蝶PNG</label>
+            <input type="file" id="imageUpload" accept="image/png">
+            <button id="confirmSprite" class="custom-confirm-btn">Confirm 确认替换</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
