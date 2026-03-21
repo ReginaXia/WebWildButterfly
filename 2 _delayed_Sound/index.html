@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand - Ethereal Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+        /* 容器不翻转，交由 Canvas 内部翻转绘图 */
+        .container { position: relative; width: 100vw; height: 100vh; }
+        video { display: none; } /* 隐藏原生视频，只看 Canvas */
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        
+        #startAudio {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white; padding: 12px 24px; border-radius: 30px;
+            cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        #startAudio:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+
+        .control-panel {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 700px; background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 40px; padding: 20px; display: flex;
+            justify-content: space-around; align-items: center; z-index: 100;
+        }
+        .control-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .control-group label { font-size: 9px; color: #00f2ff; letter-spacing: 1px; }
+        input[type="range"] { width: 80px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <video id="input_video"></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+    <button id="startAudio">ACTIVATE CRYSTAL MAGIC ✧</button>
+    <div class="control-panel">
+        <div class="control-group"><label>PERSISTENCE</label><input type="range" id="persistence" min="1000" max="10000" value="5000"></div>
+        <div class="control-group"><label>GLOW</label><input type="range" id="glowIntensity" min="0" max="40" value="25"></div>
+        <div class="control-group"><label>SIZE</label><input type="range" id="fontSize" min="10" max="40" value="16"></div>
+        <div class="control-group">
+            <label>PALETTE</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="color" id="color1" value="#ADD8E6"><input type="color" id="color2" value="#FFFFFF"><input type="color" id="color3" value="#E0B0FF">
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
