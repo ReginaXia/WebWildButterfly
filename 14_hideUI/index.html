@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyber Soul - Perfection Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --accent: #00f2ff; --glass: rgba(0, 0, 0, 0.4); --border: rgba(255, 255, 255, 0.12); }
+        body { margin: 0; background: #000; color: #fff; font-family: -apple-system, "SF Pro Text", sans-serif; overflow: hidden; }
+        .mirror-container { position: relative; width: 100vw; height: 100vh; }
+        video { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #startAudio {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: #fff; color: #000; border: none; padding: 18px 36px;
+            border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.4s; box-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .ui-panel {
+            position: fixed; top: 20px; right: 20px; width: 240px; max-height: 92vh;
+            background: var(--glass); backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid var(--border); border-radius: 24px; padding: 20px;
+            display: flex; flex-direction: column; gap: 14px; z-index: 1000; overflow-y: auto;
+        }
+        .ui-panel::-webkit-scrollbar { width: 0px; }
+
+        .section { display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .label-row { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; align-items: center; }
+        
+        input[type="range"] { -webkit-appearance: none; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; width: 100%; margin: 8px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
+        
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .mode-btn { background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 10px; padding: 7px; border-radius: 8px; cursor: pointer; }
+        .mode-btn.active { background: #fff; color: #000; font-weight: bold; }
+
+        .switch-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 2px 0; }
+        .switch { position: relative; width: 32px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.2); transition: .4s; border-radius: 20px; cursor: pointer; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--accent); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
+        .color-grid { display: flex; gap: 5px; margin-top: 5px; }
+        .color-well { flex: 1; height: 22px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <button id="startAudio">Start ✧</button>
+    <div class="mirror-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="ui-panel">
+        <div class="section">
+            <div class="label-row">environment & TV</div>
+            <div class="switch-row"><span>纯黑背景</span><label class="switch"><input type="checkbox" id="darkBg"><span class="slider"></span></label></div>
+            <div class="switch-row"><span>TV 滤镜</span><label class="switch"><input type="checkbox" id="crtToggle" checked><span class="slider"></span></label></div>
+            <input type="color" id="crtColor" class="color-well" style="width:100%" value="#ffb6c1">
+        </div>
+
+        <div class="section">
+            <div class="label-row">手部代码阵列 <label class="switch"><input type="checkbox" id="showBioHand" checked><span class="slider"></span></label></div>
+            <input type="color" id="handColor" class="color-well" style="width:100%" value="#00f2ff">
+            <div class="label-row">大小 & 扰动</div>
+            <input type="range" id="handCodeSize" min="8" max="22" value="12">
+            <input type="range" id="jitterBio" min="0" max="10" value="4">
+        </div>
+
+        <div class="section">
+            <div class="label-row">ASCII 轨迹颜色 (三色)</div>
+            <div class="color-grid">
+                <input type="color" id="ascColor1" class="color-well" value="#add8e6">
+                <input type="color" id="ascColor2" class="color-well" value="#ffffff">
+                <input type="color" id="ascColor3" class="color-well" value="#ffb6c1">
+            </div>
+            <div class="label-row" style="margin-top:8px;">字符大小 & 抖动</div>
+            <input type="range" id="fontSize" min="10" max="45" value="22">
+            <input type="range" id="jitterIntensity" min="0" max="15" value="2.5">
+        </div>
+
+        <div class="section">
+            <div class="label-row">和弦模式</div>
+            <div class="mode-grid">
+                <button class="mode-btn active" onclick="setMode('dream')">Dream</button>
+                <button class="mode-btn" onclick="setMode('arctic')">Arctic</button>
+                <button class="mode-btn" onclick="setMode('galaxy')">Galaxy</button>
+                <button class="mode-btn" onclick="setMode('magic')">Magic</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="label-row">自定义图腾</div>
+            <input type="file" id="imageUpload" style="display:none;">
+            <label for="imageUpload" style="font-size: 10px; background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; text-align: center; cursor: pointer;">上传蝴蝶 PNG</label>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
