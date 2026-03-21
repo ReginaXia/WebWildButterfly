@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Soul - Bio-Matrix Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --accent: #00f2ff; --glass: rgba(0, 0, 0, 0.5); --border: rgba(255, 255, 255, 0.15); }
+        body { margin: 0; background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; overflow: hidden; }
+        .mirror-container { position: relative; width: 100vw; height: 100vh; }
+        video { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        /* 苹果风控制面板 */
+        .ui-panel {
+            position: fixed; top: 20px; right: 20px; width: 220px; max-height: 90vh; overflow-y: auto;
+            background: var(--glass); backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--border); border-radius: 20px; padding: 20px;
+            display: flex; flex-direction: column; gap: 18px; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #startAudio {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: #fff; color: #000; border: none; padding: 15px 30px;
+            border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+
+        .section-title { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .control-item { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 12px; display: flex; justify-content: space-between; }
+        
+        /* 极简滑动条 */
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #fff; border-radius: 50%; cursor: pointer; }
+
+        /* 按钮组 */
+        .grid-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .mode-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 11px; padding: 8px; border-radius: 8px; cursor: pointer; }
+        .mode-btn.active { background: #fff; color: #000; }
+
+        /* 开关 */
+        .switch-row { display: flex; justify-content: space-between; align-items: center; }
+        .switch { position: relative; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.2); transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--accent); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        #confirmImg { background: var(--accent); color: #000; border: none; padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 5px; opacity: 0.5; pointer-events: none; }
+        #confirmImg.active { opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body>
+    <button id="startAudio">进入赛博视界</button>
+    <div class="mirror-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="ui-panel">
+        <div class="section-title">环境设定</div>
+        <div class="switch-row">
+            <span>纯黑背景</span>
+            <label class="switch"><input type="checkbox" id="darkBg"><span class="slider"></span></label>
+        </div>
+        <div class="switch-row">
+            <span>电视滤镜</span>
+            <label class="switch"><input type="checkbox" id="crtToggle" checked><span class="slider"></span></label>
+        </div>
+
+        <div class="section-title">数字代码手</div>
+        <div class="control-item">
+            <label>阵列颜色</label>
+            <input type="color" id="handColor" value="#00f2ff" style="height:30px; border:none; background:none;">
+        </div>
+        <div class="control-item">
+            <label>混乱呼吸感</label>
+            <input type="range" id="breatheSpeed" min="0.1" max="2.0" step="0.1" value="1.0">
+        </div>
+
+        <div class="section-title">ASCII 物理</div>
+        <div class="control-item">
+            <label>掉落积累量</label>
+            <input type="range" id="settleLimit" min="50" max="500" value="150">
+        </div>
+        <div class="control-item">
+            <label>电子抖动 (Jitter)</label>
+            <input type="range" id="jitter" min="0" max="20" value="5">
+        </div>
+
+        <div class="section-title">音色</div>
+        <div class="grid-modes">
+            <button class="mode-btn active" onclick="setMode('dream')">Dream</button>
+            <button class="mode-btn" onclick="setMode('arctic')">Arctic</button>
+            <button class="mode-btn" onclick="setMode('galaxy')">Galaxy</button>
+            <button class="mode-btn" onclick="setMode('magic')">Magic</button>
+        </div>
+
+        <div class="section-title">自定义图腾</div>
+        <input type="file" id="imgUpload" accept="image/png" style="font-size:10px;">
+        <button id="confirmImg">确认 PNG 替换</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
