@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand - CRT Glitch Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root { --y2k-blue: #00f2ff; --glass: rgba(255, 255, 255, 0.1); --pink: #FFB6C1; }
+        body { margin: 0; background: #050505; color: white; font-family: 'Courier New', monospace; overflow: hidden; }
+        .mirror-container { position: relative; width: 100vw; height: 100vh; }
+        video { display: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        #startAudio {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2000; background: linear-gradient(45deg, var(--y2k-blue), var(--pink)); 
+            border: none; padding: 20px 40px; color: white; font-weight: bold;
+            cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(0,242,255,0.5);
+            letter-spacing: 2px;
+        }
+
+        .control-panel {
+            position: fixed; top: 10px; right: 10px; width: 180px; height: 95vh; overflow-y: auto;
+            background: var(--glass); backdrop-filter: blur(15px);
+            padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; flex-direction: column; gap: 10px; z-index: 100;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .control-group label { font-size: 9px; color: var(--y2k-blue); text-transform: uppercase; font-weight: bold; }
+        input[type="range"], input[type="color"] { width: 100%; cursor: pointer; accent-color: var(--y2k-blue); }
+
+        .mode-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+        .mode-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #eee; font-size: 9px; padding: 4px; cursor: pointer; border-radius: 4px;
+        }
+        .mode-btn.active { background: var(--y2k-blue); color: #000; font-weight: bold; }
+
+        .custom-confirm-btn {
+            width: 100%; padding: 8px; border-radius: 6px; font-size: 10px; border: 1px solid var(--pink);
+            background: #222; color: #555; cursor: not-allowed; pointer-events: none;
+        }
+        .custom-confirm-btn.active { background: #333; color: white; cursor: pointer; pointer-events: auto; }
+    </style>
+</head>
+<body>
+    <button id="startAudio">开启梦幻仙境 ✧</button>
+    <div class="mirror-container">
+        <video id="input_video" playsinline></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-group">
+            <label>和弦模式</label>
+            <div class="mode-buttons">
+                <button class="mode-btn active" onclick="setMode('dream')">Dream</button>
+                <button class="mode-btn" onclick="setMode('magic')">Magic</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>上传蝴蝶 PNG</label>
+            <input type="file" id="imageUpload" accept="image/png">
+            <button id="confirmSprite" class="custom-confirm-btn">Confirm 替换</button>
+        </div>
+        <div class="control-group">
+            <label>CRT 强度 (Intensity)</label>
+            <input type="range" id="crtOpacity" min="0" max="1" step="0.05" value="0.4">
+        </div>
+        <div class="control-group">
+            <label>混合颜色 (Tint)</label>
+            <input type="color" id="crtColor" value="#ff00ff">
+        </div>
+        <div class="control-group">
+            <label>滚动速度 (Scroll)</label>
+            <input type="range" id="crtSpeed" min="0" max="10" step="0.5" value="2">
+        </div>
+        <div class="control-group">
+            <label>Jitter (电子抖动)</label>
+            <input type="range" id="jitterIntensity" min="0" max="15" step="0.5" value="2">
+        </div>
+        <div class="control-group">
+            <label>轨迹长度</label>
+            <input type="range" id="persistence" min="1000" max="8000" value="4000">
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
