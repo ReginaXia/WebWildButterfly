@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Wand - Y2K Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --y2k-blue: #00f2ff;
+            --y2k-pink: #ff00e5;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            margin: 0; background: #050505; color: white;
+            font-family: 'Courier New', Courier, monospace; overflow: hidden;
+        }
+        /* 镜像翻转核心 */
+        .mirror-container {
+            position: relative; width: 100vw; height: 100vh;
+            transform: scaleX(-1); /* 整体镜像 */
+        }
+        video, canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* Y2K 风格控制面板 */
+        .control-panel {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) scaleX(1); /* 抵消父级镜像，让文字正向 */
+            width: 80%; max-width: 600px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 242, 255, 0.2);
+            z-index: 100;
+        }
+        .control-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .control-group label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--y2k-blue); }
+        
+        input[type="range"] { appearance: none; background: rgba(255,255,255,0.2); height: 2px; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: var(--y2k-blue); border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--y2k-blue); }
+        input[type="color"] { background: none; border: none; width: 30px; height: 30px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="mirror-container">
+        <video id="input_video"></video>
+        <canvas id="output_canvas"></canvas>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-group">
+            <label>Persistence</label>
+            <input type="range" id="persistence" min="1000" max="10000" value="5000">
+        </div>
+        <div class="control-group">
+        <label>Butterfly Colors</label>
+        <div style="display: flex; gap: 5px;">
+            <input type="color" id="color1" value="#00f2ff">
+            <input type="color" id="color2" value="#ff00e5">
+            <input type="color" id="color3" value="#ffff00">
+        </div>
+    </div>
+        <div class="control-group">
+            <label>Font Size</label>
+            <input type="range" id="fontSize" min="10" max="40" value="18">
+        </div>
+    </div>
+
+    <div class="control-group">
+            <label>Font Size</label>
+            <input type="range" id="fontSize" min="10" max="40" value="18">
+        </div>
+        <div class="control-group">
+            <label>Glow Intensity</label>
+            <input type="range" id="glowIntensity" min="0" max="30" value="15">
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
