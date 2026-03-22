@@ -17,21 +17,79 @@
             z-index: 2000; background: #fff; color: #000; border: none; padding: 18px 36px;
             border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.4s; box-shadow: 0 0 30px rgba(255,255,255,0.2);
         }
+        #startAudio:hover { transform: translate(-50%, -50%) scale(1.03); }
+
+        .floating-ui {
+            position: fixed; top: 20px; left: 20px; z-index: 1200;
+            display: flex; flex-direction: column; gap: 10px; max-width: min(360px, calc(100vw - 40px));
+        }
+        .status-pill, .toggle-panel {
+            border: 1px solid var(--border); background: rgba(10, 14, 22, 0.58);
+            backdrop-filter: blur(28px) saturate(160%); color: #fff;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+        }
+        .status-pill {
+            padding: 12px 14px; border-radius: 18px; font-size: 12px; line-height: 1.45;
+            letter-spacing: 0.01em; transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .status-pill strong { display: block; margin-bottom: 3px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+        .status-pill.hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+        .toggle-panel {
+            width: fit-content; border-radius: 999px; padding: 10px 14px; font-size: 12px;
+            cursor: pointer; transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .toggle-panel:hover { transform: translateY(-1px); background: rgba(20, 25, 36, 0.78); }
+
+        .onboarding {
+            position: fixed; inset: 0; z-index: 1800; display: flex; align-items: flex-end; justify-content: flex-start;
+            padding: 24px; background:
+                radial-gradient(circle at top left, rgba(0, 242, 255, 0.16), transparent 38%),
+                linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.68));
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+        .onboarding.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .onboarding-card {
+            width: min(460px, calc(100vw - 48px)); padding: 24px; border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(4, 7, 12, 0.72);
+            backdrop-filter: blur(32px) saturate(180%);
+            box-shadow: 0 22px 80px rgba(0, 0, 0, 0.45);
+        }
+        .eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+        .onboarding h1 { margin: 12px 0 10px; font-size: clamp(28px, 5vw, 42px); line-height: 1.02; }
+        .onboarding p { margin: 0; font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.72); }
+        .guide-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 22px 0 20px;
+        }
+        .guide-item {
+            padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08); font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.75);
+        }
+        .guide-item strong { display: block; margin-bottom: 4px; color: #fff; font-size: 12px; }
+        .guide-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .guide-btn {
+            border: none; border-radius: 999px; padding: 12px 18px; font-size: 12px; cursor: pointer;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        .guide-btn:hover { transform: translateY(-1px); }
+        .guide-btn.primary { background: #fff; color: #000; font-weight: 700; }
+        .guide-btn.secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
 
         .ui-panel {
             position: fixed; top: 20px; right: 20px; width: 240px; max-height: 92vh;
             background: var(--glass); backdrop-filter: blur(30px) saturate(180%);
             border: 1px solid var(--border); border-radius: 24px; padding: 20px;
             display: flex; flex-direction: column; gap: 14px; z-index: 1000; overflow-y: auto;
+            transition: opacity 0.35s ease, transform 0.35s ease;
         }
+        .ui-panel.is-hidden { opacity: 0; transform: translateX(20px); pointer-events: none; }
         .ui-panel::-webkit-scrollbar { width: 0px; }
 
         .section { display: flex; flex-direction: column; gap: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
         .label-row { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; align-items: center; }
-        
+
         input[type="range"] { -webkit-appearance: none; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; width: 100%; margin: 8px 0; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
-        
+
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
         .mode-btn { background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 10px; padding: 7px; border-radius: 8px; cursor: pointer; }
         .mode-btn.active { background: #fff; color: #000; font-weight: bold; }
@@ -46,6 +104,14 @@
 
         .color-grid { display: flex; gap: 5px; margin-top: 5px; }
         .color-well { flex: 1; height: 22px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; border-radius: 4px; }
+
+        @media (max-width: 720px) {
+            .floating-ui { top: 16px; left: 16px; right: 16px; max-width: none; }
+            .ui-panel { top: auto; bottom: 16px; right: 16px; left: 16px; width: auto; max-height: 48vh; }
+            .onboarding { align-items: flex-end; padding: 16px; }
+            .onboarding-card { width: 100%; padding: 20px; border-radius: 24px; }
+            .guide-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -55,7 +121,45 @@
         <canvas id="output_canvas"></canvas>
     </div>
 
-    <div class="ui-panel">
+    <div class="floating-ui">
+        <button id="togglePanel" class="toggle-panel" type="button">Hide Controls</button>
+        <div id="statusPill" class="status-pill">
+            <strong>Ready</strong>
+            点击 Start 开启声音与镜头，然后把一只手放到画面中央。
+        </div>
+    </div>
+
+    <div id="onboarding" class="onboarding">
+        <div class="onboarding-card">
+            <div class="eyebrow">Web Wild Butterfly</div>
+            <h1>Move your hand. Let the mirror sing.</h1>
+            <p>这是一个手势驱动的声音与 ASCII 镜像。先允许摄像头，再用食指在空中绘制轨迹，画面会随着动作长出字符、蝶影和和弦。</p>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <strong>1. Start</strong>
+                    点击中央按钮，浏览器会请求摄像头和音频权限。
+                </div>
+                <div class="guide-item">
+                    <strong>2. Move</strong>
+                    把手举到镜头前，用指尖移动来生成路径与声音。
+                </div>
+                <div class="guide-item">
+                    <strong>3. Tune</strong>
+                    右侧面板可以切换滤镜、颜色、字符密度与和弦模式。
+                </div>
+                <div class="guide-item">
+                    <strong>4. Hide UI</strong>
+                    左上角可折叠控制面板，让画面更纯净。
+                </div>
+            </div>
+            <div class="guide-actions">
+                <button id="beginExperience" class="guide-btn primary" type="button">Begin Experience</button>
+                <button id="dismissGuide" class="guide-btn secondary" type="button">Skip Guide</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="uiPanel" class="ui-panel">
         <div class="section">
             <div class="label-row">environment & TV</div>
             <div class="switch-row"><span>纯黑背景</span><label class="switch"><input type="checkbox" id="darkBg"><span class="slider"></span></label></div>
